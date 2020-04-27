@@ -1,8 +1,10 @@
+import copy
 import pathlib
 import requests
 import subprocess
 import time
 import json
+import texteditor
 
 
 # check java function
@@ -39,8 +41,20 @@ def latest_mc_snapshot():
 
 # download function
 def download(url):
+    print("Đang tải server.jar...")
     file = requests.get(url)
     open("server/server.jar", 'wb').write(file.content)
+    print("Tải server thành công!")
+
+
+# verify yes and no
+def yesnoverifier(input):
+    if input not in ("Y", "N", "y", "n", "yes", "no"):
+        return "wrong"
+    if input in ("Y", "y", "yes"):
+        return True
+    if input in ("N", "n", "no"):
+        return False
 
 
 # welcome
@@ -70,6 +84,7 @@ print("Chọn phiên bản:")
 print("1) Release mới nhất: ", latest_mc_release())
 print("2) Snapshot mới nhất: ", latest_mc_snapshot())
 print("3) Khác/Other")
+print()
 
 while True:
     chosen_ver_num = input("Chọn số phiên bản: ")
@@ -85,6 +100,8 @@ elif chosen_ver_num == "2":
 elif chosen_ver_num == "3":
     chosen_ver = input("Nhập phiên bản cụ thể (X.X.X hoặc tên snapshot): ")
 
+print()
+
 # get download link
 for i in getminecraftversions.json_mc_versions["versions"]:
     if i["id"] == chosen_ver:
@@ -94,17 +111,19 @@ for i in getminecraftversions.json_mc_versions["versions"]:
 if pathlib.Path('server/server.jar').is_file():
     print("File server.jar đã tồn tại, bạn có muốn ghi đè không?")
     overwrite = ""
-    while overwrite not in ("Y", "N", "y", "n", "yes", "no"):
+    while yesnoverifier(overwrite) == "wrong":
         overwrite = input("Nhập Y/N: ")
-        if overwrite in ("Y", "y", "yes"):
+        if yesnoverifier(overwrite) == True:
             pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
             download(downloadlink)
-        elif overwrite in ("N", "n", "no"):
+        elif yesnoverifier(overwrite) == False:
             print("Đang tiếp tục setup.")
             time.sleep(0.5)
 else:
     pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     download(downloadlink)
+
+print()
 
 # eula
 print("Đồng ý với thỏa thuận người dùng của Minecraft? (https://account.mojang.com/documents/minecraft_eula)")
@@ -112,8 +131,22 @@ eula = ""
 while eula not in ("Y", "N", "y", "n", "yes", "no"):
     eula = input("Nhập Y/N: ")
     if eula in ("Y", "y", "yes"):
-        break
+        open("server/eula.txt", 'w+').write("eula=true")
     elif eula in ("N", "n", "no"):
         print("Bạn đã chọn không đồng ý. Đang thoát...")
         time.sleep(1)
         exit()
+
+print()
+
+# config
+open("server/server.properties", 'w+').write(copy.copy("server.properties.template"))
+print("Chỉnh sửa cài đặt server?")
+configserver = ""
+while yesnoverifier(configserver) == "wrong":
+    configserver = input("Nhập Y/N: ")
+    if yesnoverifier(configserver) == True:
+        texteditor.open(filename="server/server.properties")
+    elif yesnoverifier(configserver) == False:
+        print("Đang tiếp tục setup.")
+        time.sleep(0.5)
