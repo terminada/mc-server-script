@@ -102,7 +102,6 @@ if pathlib.Path('server/server.jar').is_file():
         elif overwrite in ("N", "n", "no"):
             print("Đang tiếp tục setup.")
             time.sleep(0.5)
-            break
 else:
     pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     download(downloadlink)
