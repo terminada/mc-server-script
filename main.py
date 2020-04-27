@@ -1,5 +1,9 @@
 import copy
 import pathlib
+import platform
+from hurry.filesize import size
+from shutil import copyfile
+import psutil
 import requests
 import subprocess
 import time
@@ -15,6 +19,21 @@ def checkjava():
         return False
     else:
         return True
+
+
+# check OS and memory
+def systemcheck():
+    systemcheck.OS = platform.system()
+    systemcheck.RAM = size(psutil.virtual_memory().available)
+    systemcheck.MRAM = size(psutil.virtual_memory().available / 2)
+
+
+# create the start.bat script
+def generatewindowsscript():
+    script = "java -Xms" + systemcheck.MRAM + " -Xmx" + systemcheck.RAM + " -jar server.jar"
+    print("Script chạy server:")
+    print(script)
+    open("server/start.bat", 'w+').write(script)
 
 
 # GET the list of mc versions
@@ -140,13 +159,27 @@ while eula not in ("Y", "N", "y", "n", "yes", "no"):
 print()
 
 # config
-open("server/server.properties", 'w+').write(copy.copy("server.properties.template"))
+copyfile("./templates/server.properties.templates", "./server/server.properties")
 print("Chỉnh sửa cài đặt server?")
 configserver = ""
 while yesnoverifier(configserver) == "wrong":
     configserver = input("Nhập Y/N: ")
     if yesnoverifier(configserver) == True:
-        texteditor.open(filename="server/server.properties")
+        texteditor.open(filename="server/server.properties", encoding="utf_8")
     elif yesnoverifier(configserver) == False:
         print("Đang tiếp tục setup.")
         time.sleep(0.5)
+
+print()
+
+# checking system and generate scripts
+print("Vui lòng đóng mọi ứng dụng để lấy thông tin hệ thống chính xác nhất!")
+input("Nhấn ENTER để tiếp tục...")
+print()
+systemcheck()
+print("Hệ điều hành: ", systemcheck.OS)
+print("RAM còn trống: ", systemcheck.RAM)
+print()
+generatewindowsscript()
+print()
+print("File chạy server: ", pathlib.Path('server/start.bat').absolute())
