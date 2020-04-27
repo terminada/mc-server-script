@@ -1,12 +1,13 @@
 import pathlib
 import platform
-from hurry.filesize import size
-from shutil import copyfile
-import psutil
-import requests
 import subprocess
 import time
+from shutil import copyfile
+
+import psutil
+import requests
 import texteditor
+from hurry.filesize import size
 
 
 # check java function
@@ -29,7 +30,8 @@ def systemcheck():
 # create the start.bat script
 def generatewindowsscript():
     script = "java -Xms" + systemcheck.MRAM + " -Xmx" + systemcheck.RAM + " -jar server.jar"
-    print("Script chạy server:")
+    print("Command for starting the server:")
+    print("Command chay server:")
     print(script)
     open("server/start.bat", 'w+').write(script)
 
@@ -58,10 +60,12 @@ def latest_mc_snapshot():
 
 # download function
 def download(url):
-    print("Đang tải server.jar...")
+    print("Downloading server.jar...")
+    print("Dang tai server.jar...")
     file = requests.get(url)
     open("server/server.jar", 'wb').write(file.content)
-    print("Tải server thành công!")
+    print("server.jar downloaded!")
+    print("Tai server thanh cong!")
 
 
 # verify yes and no
@@ -76,7 +80,7 @@ def yesnoverifier(input):
 
 # welcome
 print("Welcome to Minecraft Java Server Creator!")
-print("Chào mừng bạn đến với trình tạo Server Minecraft Java!")
+print("Chao mung ban den voi trinh tao Server Minecraft Java!")
 print()
 print("Software by HoangTheBoss@IllumiStudios2020")
 print()
@@ -84,29 +88,29 @@ print()
 # check java
 if not checkjava():
     print("Java Runtime not found. Download and install at: https://www.java.com/en/download/")
-    print("Bạn chưa cài Java. Tải và cài đặt Java tại: https://www.java.com/en/download/")
+    print("Ban chua cai Java. Tai va cai dat Java tai: https://www.java.com/en/download/")
     print()
 
 # load version list
 print("Loading version list...")
-print("Đang tải danh sách phiên bản...")
+print("Dang tai danh sach phien ban...")
 print()
 getminecraftversions()
 print("Done!")
-print("Đã tải xong danh sách phiên bản!")
+print("Da tai xong danh sach phien ban!")
 print()
 
 # pick version
-print("Chọn phiên bản:")
-print("1) Release mới nhất: ", latest_mc_release())
-print("2) Snapshot mới nhất: ", latest_mc_snapshot())
+print("Chon phien ban/Pick a version:")
+print("1) Release moi nhat/Latest release: ", latest_mc_release())
+print("2) Snapshot moi nhat/Latest snapshot: ", latest_mc_snapshot())
 print("3) Khác/Other")
 print()
 
 while True:
-    chosen_ver_num = input("Chọn số phiên bản: ")
+    chosen_ver_num = input("Ghi so phien ban/Type a number: ")
     if chosen_ver_num not in ('1', '2', '3'):
-        print("Hãy chọn lại trong 1,2,3.")
+        print("Hay chon lai trong 1,2,3/Pick again in 1,2,3.")
     else:
         break
 
@@ -115,7 +119,7 @@ if chosen_ver_num == "1":
 elif chosen_ver_num == "2":
     chosen_ver = latest_mc_snapshot()
 elif chosen_ver_num == "3":
-    chosen_ver = input("Nhập phiên bản cụ thể (X.X.X hoặc tên snapshot): ")
+    chosen_ver = input("Nhap phien ban cu the (X.X.X or snapshot name): ")
 
 print()
 
@@ -126,15 +130,17 @@ for i in getminecraftversions.json_mc_versions["versions"]:
 
 # download
 if pathlib.Path('server/server.jar').is_file():
-    print("File server.jar đã tồn tại, bạn có muốn ghi đè không?")
+    print("server.jar exists, overwrite?")
+    print("File server.jar da ton tai, ban co muon ghi de khong?")
     overwrite = ""
     while yesnoverifier(overwrite) == "wrong":
-        overwrite = input("Nhập Y/N: ")
+        overwrite = input("Nhap Y/N: ")
         if yesnoverifier(overwrite) == True:
             pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
             download(downloadlink)
         elif yesnoverifier(overwrite) == False:
-            print("Đang tiếp tục setup.")
+            print("Continuing...")
+            print("Dang tiep tuc setup...")
             time.sleep(0.5)
 else:
     pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
@@ -143,14 +149,16 @@ else:
 print()
 
 # eula
-print("Đồng ý với thỏa thuận người dùng của Minecraft? (https://account.mojang.com/documents/minecraft_eula)")
+print("Agree to Minecraft EULA? (https://account.mojang.com/documents/minecraft_eula)")
+print("Dong y voi thoa thuan nguoi dung cua Minecraft? (https://account.mojang.com/documents/minecraft_eula)")
 eula = ""
-while eula not in ("Y", "N", "y", "n", "yes", "no"):
-    eula = input("Nhập Y/N: ")
-    if eula in ("Y", "y", "yes"):
+while yesnoverifier(eula) == "wrong":
+    eula = input("Nhap Y/N: ")
+    if yesnoverifier(eula) == True:
         open("server/eula.txt", 'w+').write("eula=true")
-    elif eula in ("N", "n", "no"):
-        print("Bạn đã chọn không đồng ý. Đang thoát...")
+    elif yesnoverifier(eula) == False:
+        print("You selected No. Exiting...")
+        print("Ban da chon khong dong y. Dang thoat...")
         time.sleep(1)
         exit()
 
@@ -158,26 +166,29 @@ print()
 
 # config
 copyfile("./templates/server.properties.templates", "./server/server.properties")
-print("Chỉnh sửa cài đặt server?")
+print("Edit server configuration?")
+print("Chinh sua cai dat server?")
 configserver = ""
 while yesnoverifier(configserver) == "wrong":
-    configserver = input("Nhập Y/N: ")
+    configserver = input("Nhap Y/N: ")
     if yesnoverifier(configserver) == True:
         texteditor.open(filename="server/server.properties", encoding="utf_8")
     elif yesnoverifier(configserver) == False:
-        print("Đang tiếp tục setup.")
+        print("Continuing...")
+        print("Dang tiep tuc setup...")
         time.sleep(0.5)
 
 print()
 
 # checking system and generate scripts
-print("Vui lòng đóng mọi ứng dụng để lấy thông tin hệ thống chính xác nhất!")
-input("Nhấn ENTER để tiếp tục...")
+print("Close all other application in order to get the most accurate system info!")
+print("Vui long dong moi ung dung de lay thong tin he thong chinh xac nhat!")
+input("Nhan ENTER de tiep tuc...")
 print()
 systemcheck()
-print("Hệ điều hành: ", systemcheck.OS)
-print("RAM còn trống: ", systemcheck.RAM)
+print("Hệ điều hành/OS: ", systemcheck.OS)
+print("RAM còn trống/Memory Available: ", systemcheck.RAM)
 print()
 generatewindowsscript()
 print()
-print("File chạy server: ", pathlib.Path('server/start.bat').absolute())
+print("File chạy server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
