@@ -54,10 +54,12 @@ print()
 if not checkjava():
     print("Java Runtime not found. Download and install at: https://www.java.com/en/download/")
     print("Bạn chưa cài Java. Tải và cài đặt Java tại: https://www.java.com/en/download/")
+    print()
 
 # load version list
 print("Loading version list...")
 print("Đang tải danh sách phiên bản...")
+print()
 getminecraftversions()
 print("Done!")
 print("Đã tải xong danh sách phiên bản!")
@@ -89,9 +91,21 @@ for i in getminecraftversions.json_mc_versions["versions"]:
         downloadlink = getdownloadlink(i["url"])
 
 # download
-# print()
-# pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
-# download(downloadlink)
+if pathlib.Path('server/server.jar').is_file():
+    print("File server.jar đã tồn tại, bạn có muốn ghi đè không?")
+    overwrite = ""
+    while overwrite not in ("Y", "N", "y", "n", "yes", "no"):
+        overwrite = input("Nhập Y/N: ")
+        if overwrite in ("Y", "y", "yes"):
+            pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+            download(downloadlink)
+        elif overwrite in ("N", "n", "no"):
+            print("Đang tiếp tục setup.")
+            time.sleep(0.5)
+            break
+else:
+    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+    download(downloadlink)
 
 # eula
 print("Đồng ý với thỏa thuận người dùng của Minecraft? (https://account.mojang.com/documents/minecraft_eula)")
