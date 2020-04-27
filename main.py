@@ -1,4 +1,3 @@
-import copy
 import pathlib
 import platform
 from hurry.filesize import size
@@ -7,7 +6,6 @@ import psutil
 import requests
 import subprocess
 import time
-import json
 import texteditor
 
 
