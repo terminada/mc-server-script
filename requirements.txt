@@ -6,4 +6,6 @@ psutil == 5.7.0
 
 requests == 2.23.0
 
+speedtest_cli == 2.1.2
+
 text_editor == 1.0.5

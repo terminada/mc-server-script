@@ -8,6 +8,7 @@ import psutil
 import requests
 import texteditor
 from hurry.filesize import size
+import speedtest
 
 
 # check java function
@@ -24,12 +25,11 @@ def checkjava():
 def systemcheck():
     systemcheck.OS = platform.system()
     systemcheck.RAM = size(psutil.virtual_memory().available)
-    systemcheck.MRAM = size(psutil.virtual_memory().available / 2)
 
 
 # create the start.bat script
-def generatewindowsscript():
-    script = "java -Xms" + systemcheck.MRAM + " -Xmx" + systemcheck.RAM + " -jar server.jar"
+def generatewindowsscript(inputmem):
+    script = "java -Xms" + inputmem + " -Xmx" + inputmem + " -jar server.jar"
     print("Command for starting the server:")
     print("Command chay server:")
     print(script)
@@ -69,13 +69,42 @@ def download(url):
 
 
 # verify yes and no
-def yesnoverifier(input):
-    if input not in ("Y", "N", "y", "n", "yes", "no"):
-        return "wrong"
-    if input in ("Y", "y", "yes"):
+def yesnoverifier(inp):
+    if inp.lower().startswith("y"):
         return True
-    if input in ("N", "n", "no"):
+    if inp.lower().startswith("n"):
         return False
+
+
+# verify version
+def verifyversion(version):
+    for i in getminecraftversions.json_mc_versions["versions"]:
+        if i["id"] == version:
+            return True
+    return False
+
+
+# network speedtest
+def netspeed():
+    s = speedtest.Speedtest()
+    s.get_servers()
+    s.get_best_server()
+    s.download(threads=8)
+    s.upload(threads=8)
+    results_dict = s.results.dict()
+    return round((min(results_dict["download"], results_dict["upload"])) / 1048576)
+
+
+# calculations
+def calc_players(net, ram):
+    if ram.endswith("G"):
+        ram_int = int(ram[:-1]) * 1024
+    else:
+        ram_int = int(ram[:-1])
+    net_players = net / 0.33
+    ram_players = (ram_int * 0.75) / 64
+    max_player = round(min(ram_players, net_players))
+    return max_player
 
 
 # welcome
@@ -104,7 +133,7 @@ print()
 print("Chon phien ban/Pick a version:")
 print("1) Release moi nhat/Latest release: ", latest_mc_release())
 print("2) Snapshot moi nhat/Latest snapshot: ", latest_mc_snapshot())
-print("3) Khác/Other")
+print("3) Khac/Other")
 print()
 
 while True:
@@ -120,63 +149,29 @@ elif chosen_ver_num == "2":
     chosen_ver = latest_mc_snapshot()
 elif chosen_ver_num == "3":
     chosen_ver = input("Nhap phien ban cu the (X.X.X or snapshot name): ")
-
-print()
-
-# get download link
-for i in getminecraftversions.json_mc_versions["versions"]:
-    if i["id"] == chosen_ver:
-        downloadlink = getdownloadlink(i["url"])
-
-# download
-if pathlib.Path('server/server.jar').is_file():
-    print("server.jar exists, overwrite?")
-    print("File server.jar da ton tai, ban co muon ghi de khong?")
-    overwrite = ""
-    while yesnoverifier(overwrite) == "wrong":
-        overwrite = input("Nhap Y/N: ")
-        if yesnoverifier(overwrite) == True:
-            pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
-            download(downloadlink)
-        elif yesnoverifier(overwrite) == False:
-            print("Continuing...")
-            print("Dang tiep tuc setup...")
-            time.sleep(0.5)
-else:
-    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
-    download(downloadlink)
+    while not verifyversion(chosen_ver):
+        chosen_ver = input("Phien ban khong dung, xin hay nhap lai/Try again: ")
 
 print()
 
 # eula
-print("Agree to Minecraft EULA? (https://account.mojang.com/documents/minecraft_eula)")
-print("Dong y voi thoa thuan nguoi dung cua Minecraft? (https://account.mojang.com/documents/minecraft_eula)")
-eula = ""
-while yesnoverifier(eula) == "wrong":
-    eula = input("Nhap Y/N: ")
-    if yesnoverifier(eula) == True:
-        open("server/eula.txt", 'w+').write("eula=true")
-    elif yesnoverifier(eula) == False:
-        print("You selected No. Exiting...")
-        print("Ban da chon khong dong y. Dang thoat...")
-        time.sleep(1)
-        exit()
-
-print()
-
-# config
-copyfile("./templates/server.properties.templates", "./server/server.properties")
-print("Edit server configuration?")
-print("Chinh sua cai dat server?")
-configserver = ""
-while yesnoverifier(configserver) == "wrong":
-    configserver = input("Nhap Y/N: ")
-    if yesnoverifier(configserver) == True:
-        texteditor.open(filename="server/server.properties", encoding="utf_8")
-    elif yesnoverifier(configserver) == False:
-        print("Continuing...")
-        print("Dang tiep tuc setup...")
-        time.sleep(0.5)
+print("Agree to Minecraft EULA? [Y/n] (https://account.mojang.com/documents/minecraft_eula)")
+eula = input("Dong y voi thoa thuan nguoi dung cua Minecraft? [Y/n] ("
+             "https://account.mojang.com/documents/minecraft_eula)")
+if eula == "":
+    open("server/eula.txt", 'w+').write("eula=true")
+else:
+    while True:
+        if yesnoverifier(eula):
+            open("server/eula.txt", 'w+').write("eula=true")
+            break
+        elif not yesnoverifier(eula):
+            print("You selected No. Exiting...")
+            print("Ban da chon khong dong y. Dang thoat...")
+            time.sleep(1)
+            exit()
+        else:
+            eula = input("Nhap Y/N: ")
 
 print()
 
@@ -186,9 +181,95 @@ print("Vui long dong moi ung dung de lay thong tin he thong chinh xac nhat!")
 input("Nhan ENTER de tiep tuc...")
 print()
 systemcheck()
-print("Hệ điều hành/OS: ", systemcheck.OS)
-print("RAM còn trống/Memory Available: ", systemcheck.RAM)
+print("He dieu hanh/OS: ", systemcheck.OS)
+print("RAM con trong/Memory Available: ", systemcheck.RAM)
 print()
-generatewindowsscript()
+print("How much RAM do you want to allocate to the server? [" + systemcheck.RAM + "]")
+chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + systemcheck.RAM + "]:")
 print()
-print("File chạy server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
+if chosen_mem == "":
+    chosen_mem = systemcheck.RAM
+else:
+    while (not chosen_mem.endswith("M")) or (not chosen_mem.endswith("G")):
+        if chosen_mem.endswith("B"):
+            chosen_mem = chosen_mem[:-1]
+            break
+        else:
+            print("Enter a value ends with 'M' or 'G': ")
+            chosen_mem = input("Hay nhap so ket thuc boi 'M' hoac 'G': ")
+generatewindowsscript(chosen_mem)
+print("File chay server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
+print()
+
+print("Do you want to run network speedtest? [Y/n]")
+st_confirm = input("Ban co muon do toc do mang? [Y/n]")
+if st_confirm == "":
+    network_speed = netspeed()
+    print("Toc do/Speed: " + netspeed())
+else:
+    while True:
+        if yesnoverifier(st_confirm):
+            network_speed = netspeed()
+            print("Toc do/Speed: " + netspeed())
+            break
+        elif not yesnoverifier(st_confirm):
+            manual_down = input("Nhap toc do tai xuong/Download speed (Mbps): ")
+            manual_up = input("Nhap toc do tai len/Upload speed (Mbps): ")
+            network_speed = min(manual_down, manual_up)
+            time.sleep(0.5)
+            break
+        else:
+            configserver = input("Nhap Y/N: ")
+print()
+
+# config
+copyfile("./templates/server.properties.templates", "./server/server.properties")
+print("Edit server configuration? [Y/n]")
+configserver = input("Chinh sua cai dat server? [Y/n]")
+if configserver == "":
+    texteditor.open(filename="server/server.properties", encoding="utf_8")
+else:
+    while True:
+        if yesnoverifier(configserver):
+            texteditor.open(filename="server/server.properties", encoding="utf_8")
+            break
+        elif yesnoverifier(configserver) == False:
+            print("Continuing...")
+            print("Dang tiep tuc setup...")
+            time.sleep(0.5)
+            break
+        else:
+            configserver = input("Nhap Y/N: ")
+print()
+
+# get download link
+for i in getminecraftversions.json_mc_versions["versions"]:
+    if i["id"] == chosen_ver:
+        downloadlink = getdownloadlink(i["url"])
+
+# download
+if pathlib.Path('server/server.jar').is_file():
+    print("server.jar exists, overwrite? [y/N]")
+    overwrite = input("File server.jar da ton tai, ban co muon ghi de khong? [y/N]")
+    if overwrite == "":
+        print("Continuing...")
+        print("Dang tiep tuc setup...")
+        time.sleep(0.5)
+    else:
+        while True:
+            if yesnoverifier(overwrite):
+                pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+                download(downloadlink)
+                break
+            elif not yesnoverifier(overwrite):
+                print("Continuing...")
+                print("Dang tiep tuc setup...")
+                time.sleep(0.5)
+                break
+            else:
+                overwrite = input("Nhap Y/N: ")
+else:
+    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+    download(downloadlink)
+
+print()

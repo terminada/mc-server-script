@@ -4,6 +4,9 @@
 #Tên server
 motd=WeeLux
 
+#Người chơi tối đa (Được tính trong cmd)
+max-players=20
+
 #Bảo vệ spawn (số block kể từ spawn, 0=tắt)
 spawn-protection=0
 
@@ -33,9 +36,6 @@ spawn-npcs=true
 
 #Port server (0-65535)
 server-port=25565
-
-#Người chơi tối đa (Xem tại https://apexminecrafthosting.com/how-much-ram-do-i-need-for-my-server/ hoặc http://canihostaminecraftserver.com/)
-max-players=20
 
 #Bật hardcore (true/false)
 hardcore=false
