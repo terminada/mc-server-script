@@ -6,7 +6,9 @@ Minecraft Server [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_
 ![screenshot-1](demos/screenshot-1.png "Screenshot 1")
 
 ### Installation and using
-For Windows there's an executable available at [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
+Download the latest `.zip` file at [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
+
+For __Windows 10__ you can run `windows-easy.bat` to download Python (embedded version/if not installed), install dependencies and execute the script.
 
 Alternatively you can use the command line:
 
