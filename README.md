@@ -1,6 +1,8 @@
 ## Minecraft JE Server creation script
 > Script tạo server Minecraft Java
 
+[![Build Status](https://travis-ci.com/HoangTheBoss/mc-server-script.svg?branch=master)](https://travis-ci.com/HoangTheBoss/mc-server-script)
+
 Minecraft Server [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_server) script for Windows, MacOSX, Ubuntu, Debian, CentOS, Fedora... (Not Solaris at the moment), using Python and some dependencies.
 
 ![screenshot-1](demos/screenshot-1.png "Screenshot 1")
