@@ -4,4 +4,4 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python makeserver.py
+  - python makeserver.py > ci-testing.txt
