@@ -221,7 +221,7 @@ else:
     while True:
         if yesnoverifier(st_confirm):
             network_speed = netspeed()
-            print("Toc do/Speed: " + netspeed())
+            print("Toc do/Speed: " + str(network_speed))
             break
         elif not yesnoverifier(st_confirm):
             manual_down = input("Nhap toc do tai xuong/Download speed (Mbps): ")

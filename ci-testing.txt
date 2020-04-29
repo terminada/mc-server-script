@@ -2,5 +2,6 @@
 y
 ENTER
 4G
+4G
 y
 n
