@@ -84,8 +84,8 @@ def yesnoverifier(inp):
 
 # verify version
 def verifyversion(json, version):
-    for i in json["versions"]:
-        if i["id"] == version:
+    for j in json["versions"]:
+        if j["id"] == version:
             return True
     return False
 
@@ -194,9 +194,9 @@ systeminfo = systemcheck()
 print("He dieu hanh/OS: ", systeminfo[0])
 print("RAM con trong/Memory Available: ", systeminfo[1])
 print()
-ram = str(systeminfo[1])
-print("How much RAM do you want to allocate to the server? [" + ram + "]")
-chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + ram + "]:")
+mem = str(systeminfo[1])
+print("How much RAM do you want to allocate to the server? [" + mem + "]")
+chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + mem + "]:")
 # print(chosen_mem)  # for testing
 print()
 if chosen_mem == "":
@@ -252,7 +252,7 @@ else:
         if yesnoverifier(configserver):
             texteditor.open(filename="server/server.properties", encoding="utf_8")
             break
-        elif yesnoverifier(configserver) == False:
+        elif not yesnoverifier(configserver):
             print("Continuing...")
             print("Dang tiep tuc setup...")
             time.sleep(0.5)
