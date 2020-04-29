@@ -165,10 +165,12 @@ print("Agree to Minecraft EULA? [Y/n] (https://account.mojang.com/documents/mine
 eula = input("Dong y voi thoa thuan nguoi dung cua Minecraft? [Y/n] ("
              "https://account.mojang.com/documents/minecraft_eula)")
 if eula == "":
+    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     open("server/eula.txt", 'w+').write("eula=true")
 else:
     while True:
         if yesnoverifier(eula):
+            pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
             open("server/eula.txt", 'w+').write("eula=true")
             break
         elif not yesnoverifier(eula):
