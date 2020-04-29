@@ -63,7 +63,7 @@ def latest_mc_snapshot(json):
 
 # download function
 def download(url):
-    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
     print("Downloading server.jar...")
     print("Dang tai server.jar...")
     obj = SmartDL(url, "server/server.jar")
@@ -165,12 +165,12 @@ print("Agree to Minecraft EULA? [Y/n] (https://account.mojang.com/documents/mine
 eula = input("Dong y voi thoa thuan nguoi dung cua Minecraft? [Y/n] ("
              "https://account.mojang.com/documents/minecraft_eula)")
 if eula == "":
-    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
     open("server/eula.txt", 'w+').write("eula=true")
 else:
     while True:
         if yesnoverifier(eula):
-            pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
+            pathlib.Path("server").mkdir(parents=True, exist_ok=True)
             open("server/eula.txt", 'w+').write("eula=true")
             break
         elif not yesnoverifier(eula):
