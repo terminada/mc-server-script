@@ -9,6 +9,7 @@ import requests
 import texteditor
 from hurry.filesize import size
 import speedtest
+from pySmartDL import SmartDL
 
 
 # check java function
@@ -62,8 +63,10 @@ def latest_mc_snapshot():
 def download(url):
     print("Downloading server.jar...")
     print("Dang tai server.jar...")
-    file = requests.get(url)
-    open("server/server.jar", 'wb').write(file.content)
+    obj = SmartDL(url, "server/server.jar")
+    obj.start()
+    # file = requests.get(url)
+    # open("server/server.jar", 'wb').write(file.content)
     print("server.jar downloaded!")
     print("Tai server thanh cong!")
 
@@ -101,10 +104,10 @@ def calc_players(net, ram):
         ram_int = int(ram[:-1]) * 1024
     else:
         ram_int = int(ram[:-1])
-    net_players = net / 0.33
+    net_players = int(net) / 0.33
     ram_players = (ram_int * 0.75) / 64
     max_player = round(min(ram_players, net_players))
-    return max_player
+    return str(max_player)
 
 
 # welcome
@@ -205,7 +208,7 @@ print("Do you want to run network speedtest? [Y/n]")
 st_confirm = input("Ban co muon do toc do mang? [Y/n]")
 if st_confirm == "":
     network_speed = netspeed()
-    print("Toc do/Speed: " + netspeed())
+    print("Toc do/Speed: " + str(network_speed))
 else:
     while True:
         if yesnoverifier(st_confirm):
@@ -223,6 +226,9 @@ else:
 print()
 
 # config
+print("Recommended player slots (max-player): " + calc_players(network_speed, chosen_mem))
+print("So slot duoc khuyen cao (max-player): " + calc_players(network_speed, chosen_mem))
+print()
 copyfile("./templates/server.properties.templates", "./server/server.properties")
 print("Edit server configuration? [Y/n]")
 configserver = input("Chinh sua cai dat server? [Y/n]")
