@@ -24,24 +24,26 @@ def checkjava():
 
 # check OS and memory
 def systemcheck():
-    systemcheck.OS = platform.system()
-    systemcheck.RAM = size(psutil.virtual_memory().available)
+    return platform.system(), size(psutil.virtual_memory().available)
 
 
 # create the start.bat script
-def generatewindowsscript(inputmem):
-    script = "java -Xms" + inputmem + " -Xmx" + inputmem + " -jar server.jar"
-    print("Command for starting the server:")
-    print("Command chay server:")
-    print(script)
-    open("server/start.bat", 'w+').write(script)
+def generatescript(os, inputmem):
+    generated_script = "java -Xms" + inputmem + " -Xmx" + inputmem + " -jar server.jar"
+    if os == "Windows":
+        open("server/start.bat", 'w+').write(generated_script)
+    elif os == "Linux":
+        open("server/start.sh", 'w+').writelines(["#!/bin/sh", generated_script])
+    elif os == "MacOS":
+        open("server/start.sh", 'w+').writelines(["#!/bin/sh", generated_script])
+    return generated_script
 
 
 # GET the list of mc versions
 def getminecraftversions():
     url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
     response = requests.get(url)
-    getminecraftversions.json_mc_versions = response.json()
+    return response.json()
 
 
 # GET download link for selected version
@@ -51,16 +53,17 @@ def getdownloadlink(url):
 
 
 # functions for easy accessing
-def latest_mc_release():
-    return getminecraftversions.json_mc_versions["latest"]["release"]
+def latest_mc_release(json):
+    return json["latest"]["release"]
 
 
-def latest_mc_snapshot():
-    return getminecraftversions.json_mc_versions["latest"]["snapshot"]
+def latest_mc_snapshot(json):
+    return json["latest"]["snapshot"]
 
 
 # download function
 def download(url):
+    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     print("Downloading server.jar...")
     print("Dang tai server.jar...")
     obj = SmartDL(url, "server/server.jar")
@@ -80,8 +83,8 @@ def yesnoverifier(inp):
 
 
 # verify version
-def verifyversion(version):
-    for i in getminecraftversions.json_mc_versions["versions"]:
+def verifyversion(json, version):
+    for i in json["versions"]:
         if i["id"] == version:
             return True
     return False
@@ -127,15 +130,15 @@ if not checkjava():
 print("Loading version list...")
 print("Dang tai danh sach phien ban...")
 print()
-getminecraftversions()
+versions_json = getminecraftversions()
 print("Done!")
 print("Da tai xong danh sach phien ban!")
 print()
 
 # pick version
 print("Chon phien ban/Pick a version:")
-print("1) Release moi nhat/Latest release: ", latest_mc_release())
-print("2) Snapshot moi nhat/Latest snapshot: ", latest_mc_snapshot())
+print("1) Release moi nhat/Latest release: ", latest_mc_release(versions_json))
+print("2) Snapshot moi nhat/Latest snapshot: ", latest_mc_snapshot(versions_json))
 print("3) Khac/Other")
 print()
 
@@ -147,12 +150,12 @@ while True:
         break
 
 if chosen_ver_num == "1":
-    chosen_ver = latest_mc_release()
+    chosen_ver = latest_mc_release(versions_json)
 elif chosen_ver_num == "2":
-    chosen_ver = latest_mc_snapshot()
+    chosen_ver = latest_mc_snapshot(versions_json)
 elif chosen_ver_num == "3":
     chosen_ver = input("Nhap phien ban cu the (X.X.X or snapshot name): ")
-    while not verifyversion(chosen_ver):
+    while not verifyversion(versions_json, chosen_ver):
         chosen_ver = input("Phien ban khong dung, xin hay nhap lai/Try again: ")
 
 print()
@@ -183,15 +186,16 @@ print("Close all other application in order to get the most accurate system info
 print("Vui long dong moi ung dung de lay thong tin he thong chinh xac nhat!")
 input("Nhan ENTER de tiep tuc...")
 print()
-systemcheck()
-print("He dieu hanh/OS: ", systemcheck.OS)
-print("RAM con trong/Memory Available: ", systemcheck.RAM)
+systeminfo = systemcheck()
+print("He dieu hanh/OS: ", systeminfo[0])
+print("RAM con trong/Memory Available: ", systeminfo[1])
 print()
-print("How much RAM do you want to allocate to the server? [" + systemcheck.RAM + "]")
-chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + systemcheck.RAM + "]:")
+ram = str(systeminfo[1])
+print("How much RAM do you want to allocate to the server? [" + ram + "]")
+chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + ram + "]:")
 print()
 if chosen_mem == "":
-    chosen_mem = systemcheck.RAM
+    chosen_mem = systeminfo[1]
 else:
     while (not chosen_mem.endswith("M")) or (not chosen_mem.endswith("G")):
         if chosen_mem.endswith("B"):
@@ -200,7 +204,9 @@ else:
         else:
             print("Enter a value ends with 'M' or 'G': ")
             chosen_mem = input("Hay nhap so ket thuc boi 'M' hoac 'G': ")
-generatewindowsscript(chosen_mem)
+script = generatescript(systeminfo[1], chosen_mem)
+print("Command for starting the server:")
+print("Command chay server: " + script)
 print("File chay server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
 print()
 
@@ -249,7 +255,7 @@ else:
 print()
 
 # get download link
-for i in getminecraftversions.json_mc_versions["versions"]:
+for i in versions_json["versions"]:
     if i["id"] == chosen_ver:
         downloadlink = getdownloadlink(i["url"])
 
@@ -264,7 +270,6 @@ if pathlib.Path('server/server.jar').is_file():
     else:
         while True:
             if yesnoverifier(overwrite):
-                pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
                 download(downloadlink)
                 break
             elif not yesnoverifier(overwrite):
@@ -275,6 +280,5 @@ if pathlib.Path('server/server.jar').is_file():
             else:
                 overwrite = input("Nhap Y/N: ")
 else:
-    pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     download(downloadlink)
 print()
