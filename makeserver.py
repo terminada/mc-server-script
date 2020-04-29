@@ -199,7 +199,7 @@ print()
 if chosen_mem == "":
     chosen_mem = systeminfo[1]
 else:
-    while (not chosen_mem.endswith("M")) or (not chosen_mem.endswith("G")):
+    while (not chosen_mem.endswith("M")) and (not chosen_mem.endswith("G")):
         if chosen_mem.endswith("B"):
             chosen_mem = chosen_mem[:-1]
             break
