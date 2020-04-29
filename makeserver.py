@@ -144,7 +144,7 @@ print()
 
 while True:
     chosen_ver_num = input("Ghi so phien ban/Type a number: ")
-    print(chosen_ver_num) # for testing
+    print(chosen_ver_num)  # for testing
     if chosen_ver_num not in ('1', '2', '3'):
         print("Hay chon lai trong 1,2,3/Pick again in 1,2,3.")
     else:
@@ -165,7 +165,7 @@ print()
 print("Agree to Minecraft EULA? [Y/n] (https://account.mojang.com/documents/minecraft_eula)")
 eula = input("Dong y voi thoa thuan nguoi dung cua Minecraft? [Y/n] ("
              "https://account.mojang.com/documents/minecraft_eula)")
-print(eula) # for testing
+print(eula)  # for testing
 if eula == "":
     pathlib.Path("server").mkdir(parents=True, exist_ok=True)
     open("server/eula.txt", 'w+').write("eula=true")
@@ -197,7 +197,7 @@ print()
 ram = str(systeminfo[1])
 print("How much RAM do you want to allocate to the server? [" + ram + "]")
 chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + ram + "]:")
-print(chosen_mem) # for testing
+print(chosen_mem)  # for testing
 print()
 if chosen_mem == "":
     chosen_mem = systeminfo[1]
@@ -217,7 +217,7 @@ print()
 
 print("Do you want to run network speedtest? [Y/n]")
 st_confirm = input("Ban co muon do toc do mang? [Y/n]")
-print(st_confirm) # for testing
+print(st_confirm)  # for testing
 if st_confirm == "":
     network_speed = netspeed()
     print("Toc do/Speed: " + str(network_speed))
@@ -244,7 +244,7 @@ print()
 copyfile("./templates/server.properties.templates", "./server/server.properties")
 print("Edit server configuration? [Y/n]")
 configserver = input("Chinh sua cai dat server? [Y/n]")
-print(configserver) # for testing
+print(configserver)  # for testing
 if configserver == "":
     texteditor.open(filename="server/server.properties", encoding="utf_8")
 else:
