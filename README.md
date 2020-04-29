@@ -19,11 +19,14 @@ pip -r requirements.txt
 python makeserver.py
 ```
 ### Dependencies
+Better check [requirements.txt](https://github.com/HoangTheBoss/mc-server-script/blob/master/requirements.txt) for more updated contents
 ```
 hurry.filesize == 0.9
 psutil == 5.7.0
 requests == 2.23.0
 text_editor == 1.0.5
+speedtest_cli == 2.1.2
+pySmartDL == 1.3.3
 ```
 
 ### Contribute

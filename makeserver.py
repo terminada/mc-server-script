@@ -6,9 +6,9 @@ from shutil import copyfile
 
 import psutil
 import requests
+import speedtest
 import texteditor
 from hurry.filesize import size
-import speedtest
 from pySmartDL import SmartDL
 
 
@@ -277,5 +277,4 @@ if pathlib.Path('server/server.jar').is_file():
 else:
     pathlib.Path("/server").mkdir(parents=True, exist_ok=True)
     download(downloadlink)
-
 print()
