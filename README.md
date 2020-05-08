@@ -3,12 +3,14 @@
 > Script tạo server Minecraft Java
 
 [![Build Status](https://travis-ci.com/HoangTheBoss/mc-server-script.svg?branch=master)](https://travis-ci.com/HoangTheBoss/mc-server-script)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![DeepSource](https://static.deepsource.io/deepsource-badge-dark-mini.svg)](https://deepsource.io/gh/HoangTheBoss/mc-server-script/?ref=repository-badge)
 
 Minecraft Server [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_server) script for Windows, MacOSX, Ubuntu, Debian, CentOS, Fedora... (Not Solaris at the moment), using Python and some dependencies.
 
 ### Table of Contents
 1. [Demo](#demo)
-2. [Installation and usage](#installation-and-using)
+2. [Installation and usage](#installation-and-usage)
 3. [Dependencies](#dependencies)
 4. [Contribute](#contribute)
 
@@ -16,18 +18,24 @@ Minecraft Server [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_
 ![screenshot-1](demos/screenshot-1.png "Screenshot 1")
 
 ## Installation and usage
-Download the latest `.zip` file at [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
 
-For __Windows 10__ you can run `windows-easy.bat` to download Python (embedded version/if not installed), install dependencies and execute the script.
+For __Windows 10 only__: 
 
-Alternatively you will have to install Python by yourself, then use the command line:
+- Download the latest `.zip` file at [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
+- Run `windows-easy.bat` to download Python (embedded version/if not installed), install dependencies and execute the script.
+
+Alternatively you will have to install __Python 3.7__ by yourself, then use the command line:
 
 ```
 git clone https://github.com/HoangTheBoss/mc-server-script.git
-(cd into master)
-pip -r requirements.txt
-python makeserver.py
+cd mc-server-script
+python3 -m pip install --upgrade pip
+python3 -m pip install -r requirements.txt
+python3 makeserver.py
 ```
+
+__Note__: Using `python3` on Windows 8/10 may open the __Store__, in that case use `python`
+
 ## Dependencies
 Better check [requirements.txt](https://github.com/HoangTheBoss/mc-server-script/blob/master/requirements.txt) for more updated contents
 ```
