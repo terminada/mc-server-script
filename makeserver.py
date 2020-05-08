@@ -1,3 +1,4 @@
+import fileinput
 import pathlib
 import platform
 import subprocess
@@ -18,8 +19,7 @@ def checkjava():
     output = str(sp.communicate())
     if output.find("Java(TM)") == -1:
         return False
-    else:
-        return True
+    return True
 
 
 # check OS and memory
@@ -123,7 +123,8 @@ argparser.add_argument("-n", "--network", default="manual", help="The minimum of
                                                                  "else type number only")
 argparser.add_argument("-s", "--slots", default="0", type=int, help="Number of slots to be available on your "
                                                                     "server, 0 = manual. Ignore if --network is passed")
-argparser.add_argument("-o", "--overwrite", default="manual", choices=["y", "n"], help="Overwrite existing JAR file?")
+argparser.add_argument("-o", "--overwrite", default="manual", choices=["y", "n", "manual"], help="Overwrite existing "
+                                                                                                 "JAR file?")
 
 args = argparser.parse_args()
 
@@ -247,7 +248,7 @@ if args.memory == "manual":
                 chosen_mem = input("Hay nhap so ket thuc boi 'M' hoac 'G': ")
 elif args.memory == "auto":
     systeminfo = systemcheck()
-    hosen_mem = systeminfo[1]
+    chosen_mem = systeminfo[1]
 elif (not args.memory.endswith("M")) and (not args.memory.endswith("G")):
     systeminfo = systemcheck()
     if args.memory.endswith("B"):
@@ -264,8 +265,6 @@ print("Command for starting the server:")
 print("Command chay server: " + script)
 print("File chay server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
 print()
-
-exit()
 
 if args.network == "manual":
     print("Do you want to run network speedtest? [Y/n]")
@@ -297,29 +296,49 @@ else:
 
 
 # config
-print("Recommended player slots (max-player in server.properties): " + calc_players(network_speed, chosen_mem))
-print("So slot duoc khuyen cao (max-player trong server.properties): " + calc_players(network_speed, chosen_mem))
-print()
-copyfile("./templates/server.properties.templates", "./server/server.properties")
-print("Edit server configuration? [Y/n]")
-configserver = input("Chinh sua cai dat server? [Y/n]")
+if args.slots == 0 and args.network == "manual":
+    max_player = calc_players(network_speed, chosen_mem)
+    print("Recommended player slots (max-player in server.properties): " + max_player)
+    print("So slot duoc khuyen cao (max-player trong server.properties): " + max_player)
+    print()
+    copyfile("./templates/server.properties.templates", "./server/server.properties")
+    with open("server/server.properties", "r", encoding="utf8") as file:
+        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
+    with open("server/server.properties", "w", encoding="utf8") as file:
+        file.write(fileout)
 
-# print(configserver)  # for testing
-if configserver == "":
-    texteditor.open(filename="server/server.properties", encoding="utf_8")
-else:
-    while True:
-        if yesnoverifier(configserver):
-            texteditor.open(filename="server/server.properties", encoding="utf_8")
-            break
-        elif not yesnoverifier(configserver):
-            print("Continuing...")
-            print("Dang tiep tuc setup...")
-            time.sleep(0.5)
-            break
-        else:
-            configserver = input("Nhap Y/N: ")
-print()
+    print("Edit server configuration? [Y/n]")
+    configserver = input("Chinh sua cai dat server? [Y/n]")
+    # print(configserver)  # for testing
+    if configserver == "":
+        texteditor.open(filename="server/server.properties", encoding="utf_8")
+    else:
+        while True:
+            if yesnoverifier(configserver):
+                texteditor.open(filename="server/server.properties", encoding="utf_8")
+                break
+            elif not yesnoverifier(configserver):
+                print("Continuing...")
+                print("Dang tiep tuc setup...")
+                time.sleep(0.5)
+                break
+            else:
+                configserver = input("Nhap Y/N: ")
+    print()
+elif args.slots != 0 and args.network == "manual":
+    max_player = args.slots
+    copyfile("./templates/server.properties.templates", "./server/server.properties")
+    with open("server/server.properties", "r", encoding="utf8") as file:
+        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
+    with open("server/server.properties", "w", encoding="utf8") as file:
+        file.write(fileout)
+elif args.slots == 0 and args.network != "manual":
+    max_player = calc_players(network_speed, chosen_mem)
+    copyfile("./templates/server.properties.templates", "./server/server.properties")
+    with open("server/server.properties", "r", encoding="utf8") as file:
+        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
+    with open("server/server.properties", "w", encoding="utf8") as file:
+        file.write(fileout)
 
 # get download link
 for i in versions_json["versions"]:
@@ -328,24 +347,27 @@ for i in versions_json["versions"]:
 
 # download
 if pathlib.Path('server/server.jar').is_file():
-    print("server.jar exists, overwrite? [y/N]")
-    overwrite = input("File server.jar da ton tai, ban co muon ghi de khong? [y/N]")
-    if overwrite == "":
-        print("Continuing...")
-        print("Dang tiep tuc setup...")
-        time.sleep(0.5)
-    else:
-        while True:
-            if yesnoverifier(overwrite):
-                download(downloadlink)
-                break
-            elif not yesnoverifier(overwrite):
-                print("Continuing...")
-                print("Dang tiep tuc setup...")
-                time.sleep(0.5)
-                break
-            else:
-                overwrite = input("Nhap Y/N: ")
+    if args.overwrite == "manual":
+        print("server.jar exists, overwrite? [y/N]")
+        overwrite = input("File server.jar da ton tai, ban co muon ghi de khong? [y/N]")
+        if overwrite == "":
+            print("Continuing...")
+            print("Dang tiep tuc setup...")
+            time.sleep(0.5)
+        else:
+            while True:
+                if yesnoverifier(overwrite):
+                    download(downloadlink)
+                    break
+                elif not yesnoverifier(overwrite):
+                    print("Continuing...")
+                    print("Dang tiep tuc setup...")
+                    time.sleep(0.5)
+                    break
+                else:
+                    overwrite = input("Nhap Y/N: ")
+    elif args.overwrite == "y":
+        download(downloadlink)
 else:
     download(downloadlink)
 print()
