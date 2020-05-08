@@ -1,10 +1,10 @@
-import fileinput
+import argparse
 import pathlib
 import platform
 import subprocess
 import time
 from shutil import copyfile
-import argparse
+
 import psutil
 import requests
 import speedtest
