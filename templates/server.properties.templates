@@ -14,7 +14,7 @@ spawn-protection=0
 allow-nether=true
 
 #Gamemode mặc định (creative/survival/adventure/spectator)
-gamemode=spectator
+gamemode=survival
 
 #Độ khó (peaceful/easy/normal/hard)
 difficulty=normal
