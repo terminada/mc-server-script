@@ -1,17 +1,15 @@
 import argparse
 import os
 import pathlib
-import platform
 import subprocess
 import time
 from shutil import copyfile
 
-import psutil
-import requests
-import speedtest
 import texteditor
-from hurry.filesize import size
-from pySmartDL import SmartDL
+
+import server_configurator as sc
+import server_downloader as sd
+import server_fetcher as sf
 
 
 # check java function
@@ -23,81 +21,6 @@ def check_java():
     return True
 
 
-# check OS and memory
-def system_check():
-    return platform.system(), size(psutil.virtual_memory().available)
-
-
-# create the start.bat script
-def generate_script(os, inputmem, lithium):
-    if not lithium:
-        generated_script = "java -Xms" + inputmem + " -Xmx" + inputmem + " -jar server.jar"
-    elif lithium:
-        generated_script = "java -Xms" + inputmem + " -Xmx" + inputmem + " -jar fabric-server-launch.jar"
-    if os == "Windows":
-        open("server/start.bat", 'w+').write(generated_script)
-        print("File chay server/Server starting script: ", pathlib.Path('server/start.bat').absolute())
-    elif os == "Linux":
-        open("server/start.sh", 'w+').writelines(["#!/bin/sh", generated_script])
-        print("File chay server/Server starting script: ", pathlib.Path('server/start.sh').absolute())
-    elif os == "MacOS":
-        open("server/start.sh", 'w+').writelines(["#!/bin/sh", generated_script])
-        print("File chay server/Server starting script: ", pathlib.Path('server/start.sh').absolute())
-    return generated_script
-
-
-# GET the list of mc versions
-def getminecraftversions():
-    url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
-    response = requests.get(url)
-    return response.json()
-
-
-# GET download link for selected version
-def get_download_link(url):
-    response = requests.get(url)
-    return response.json()["downloads"]["server"]["url"]
-
-
-# GET lithium download link
-def get_fabric_link():
-    url = "https://meta.fabricmc.net/v2/versions/installer"
-    response = requests.get(url)
-    return response.json()[0]["url"]
-
-
-# functions for easy accessing
-def latest_mc_release(json):
-    return json["latest"]["release"]
-
-
-def latest_mc_snapshot(json):
-    return json["latest"]["snapshot"]
-
-
-# download function
-def download(url):
-    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
-    print("Downloading server.jar...")
-    print("Dang tai server.jar...")
-    obj = SmartDL(url, "server/server.jar")
-    obj.start()
-    # file = requests.get(url)
-    # open("server/server.jar", 'wb').write(file.content)
-    print("server.jar downloaded!")
-    print("Tai server thanh cong!")
-
-
-# download fabric
-def download_fabric(url):
-    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
-    print("Downloading fabric_installer.jar...")
-    print("Dang tai fabric_installer.jar...")
-    obj = SmartDL(url, "server/fabric_installer.jar")
-    obj.start()
-    print("fabric_installer.jar downloaded!")
-    print("Tai fabric thanh cong!")
-
 
 # verify yes and no
 def yes_no_verifier(inp):
@@ -105,37 +28,6 @@ def yes_no_verifier(inp):
         return True
     if inp.lower().startswith("n"):
         return False
-
-
-# verify version
-def verify_version(json, version):
-    for j in json["versions"]:
-        if j["id"] == version:
-            return True
-    return False
-
-
-# network speedtest
-def net_speed():
-    s = speedtest.Speedtest()
-    s.get_servers()
-    s.get_best_server()
-    s.download(threads=8)
-    s.upload(threads=8)
-    results_dict = s.results.dict()
-    return round((min(results_dict["download"], results_dict["upload"])) / 1048576)
-
-
-# calculations
-def calc_players(net, ram):
-    if ram.endswith("G"):
-        ram_int = int(ram[:-1]) * 1024
-    else:
-        ram_int = int(ram[:-1])
-    net_players = int(net) / 0.33
-    ram_players = (ram_int * 0.75) / 64
-    max_player = round(min(ram_players, net_players))
-    return str(max_player)
 
 
 # argument handling
@@ -156,7 +48,7 @@ argparser.add_argument("-o", "--overwrite", default="manual", choices=["y", "n",
 args = argparser.parse_args()
 
 # welcome
-print("Welcome to Minecraft Java Server Creator!")
+print("Welcome to Mincecraft Java Server Creator!")
 print("Chao mung ban den voi trinh tao Server Minecraft Java! \n")
 print("Software by HoangTheBoss@IllumiStudios2020 \n")
 
@@ -169,15 +61,15 @@ if not check_java():
 print("Loading version list...")
 print("Dang tai danh sach phien ban... \n")
 
-versions_json = getminecraftversions()
+versions_json = sf.getminecraftversions()
 print("Done!")
 print("Da tai xong danh sach phien ban! \n")
 
 if args.version == "manual":
     # pick version
     print("Chon phien ban/Pick a version:")
-    print("1) Release moi nhat/Latest release: ", latest_mc_release(versions_json))
-    print("2) Snapshot moi nhat/Latest snapshot: ", latest_mc_snapshot(versions_json))
+    print("1) Release moi nhat/Latest release: ", sf.latest_mc_release(versions_json))
+    print("2) Snapshot moi nhat/Latest snapshot: ", sf.latest_mc_snapshot(versions_json))
     print("3) Khac/Other \n")
 
     while True:
@@ -189,21 +81,21 @@ if args.version == "manual":
             break
 
     if chosen_ver_num == "1":
-        chosen_ver = latest_mc_release(versions_json)
+        chosen_ver = sf.latest_mc_release(versions_json)
     elif chosen_ver_num == "2":
-        chosen_ver = latest_mc_snapshot(versions_json)
+        chosen_ver = sf.latest_mc_snapshot(versions_json)
     elif chosen_ver_num == "3":
         chosen_ver = input("Nhap phien ban cu the (X.X.X or snapshot name): ")
-        while not verify_version(versions_json, chosen_ver):
+        while not sf.verify_version(versions_json, chosen_ver):
             chosen_ver = input("Phien ban khong dung, xin hay nhap lai/Try again: ")
 
     print()
 
 elif args.version == "release":
-    chosen_ver = latest_mc_release(versions_json)
+    chosen_ver = sf.latest_mc_release(versions_json)
 elif args.version == "snapshot":
-    chosen_ver = latest_mc_snapshot(versions_json)
-elif verify_version(versions_json, args.version):
+    chosen_ver = sf.latest_mc_snapshot(versions_json)
+elif sf.verify_version(versions_json, args.version):
     chosen_ver = args.version
 else:
     print("Invalid --version argument value passed, do -h or --help for more information.")
@@ -213,7 +105,7 @@ else:
 # get download link
 for i in versions_json["versions"]:
     if i["id"] == chosen_ver:
-        downloadlink = get_download_link(i["url"])
+        downloadlink = sf.get_download_link(i["url"])
 
 # download
 if pathlib.Path('server/server.jar').is_file():
@@ -227,7 +119,7 @@ if pathlib.Path('server/server.jar').is_file():
         else:
             while True:
                 if yes_no_verifier(overwrite):
-                    download(downloadlink)
+                    sd.download_server(downloadlink)
                     break
                 elif not yes_no_verifier(overwrite):
                     print("Continuing...")
@@ -237,9 +129,9 @@ if pathlib.Path('server/server.jar').is_file():
                 else:
                     overwrite = input("Nhap Y/N: ")
     elif args.overwrite == "y":
-        download(downloadlink)
+        sd.download_server(downloadlink)
 else:
-    download(downloadlink)
+    sd.download_server(downloadlink)
 print()
 
 # use fabric + lithium
@@ -268,8 +160,8 @@ while True:
                 else:
                     while True:
                         if yes_no_verifier(overwrite):
-                            fabric_link = get_fabric_link()
-                            download_fabric(fabric_link)
+                            fabric_link = sf.get_fabric_link()
+                            sd.download_fabric(fabric_link)
                             os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " +
                                       chosen_ver)
                             break
@@ -281,14 +173,15 @@ while True:
                         else:
                             overwrite = input("Nhap Y/N: ")
             elif args.overwrite == "y":
-                fabric_link = get_fabric_link()
-                download_fabric(fabric_link)
+                fabric_link = sf.get_fabric_link()
+                sd.download_fabric(fabric_link)
                 os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " + chosen_ver)
                 break
         else:
-            fabric_link = get_fabric_link()
-            download_fabric(fabric_link)
+            fabric_link = sf.get_fabric_link()
+            sd.download_fabric(fabric_link)
             os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " + chosen_ver)
+            break
         print()
     elif not yes_no_verifier(lithium_yesno):
         print("Continuing...")
@@ -336,7 +229,7 @@ if args.memory == "manual":
     print("Vui long dong moi ung dung de lay thong tin he thong chinh xac nhat!")
     print(input("Nhan ENTER de tiep tuc..."))
     print()
-    system_info = system_check()
+    system_info = sc.system_check()
     print("He dieu hanh/OS: ", system_info[0])
     print("RAM con trong/Memory Available: ", system_info[1])
     print()
@@ -356,20 +249,20 @@ if args.memory == "manual":
                 print("Enter a value ends with 'M' or 'G': ")
                 chosen_mem = input("Hay nhap so ket thuc boi 'M' hoac 'G': ")
 elif args.memory == "auto":
-    system_info = system_check()
+    system_info = sc.system_check()
     chosen_mem = system_info[1]
 elif (not args.memory.endswith("M")) and (not args.memory.endswith("G")):
-    system_info = system_check()
+    system_info = sc.system_check()
     if args.memory.endswith("B"):
         chosen_mem = args.memory[:-1]
     else:
         print("Invalid --memory argument value passed, do -h or --help for more information.")
         print("Exiting...")
 else:
-    system_info = system_check()
+    system_info = sc.system_check()
     chosen_mem = args.memory
 
-script = generate_script(system_info[1], chosen_mem, yes_no_verifier(lithium_yesno))
+script = sc.generate_script(system_info[1], chosen_mem, yes_no_verifier(lithium_yesno))
 print("Command for starting the server:")
 print("Command chay server: " + script)
 print()
@@ -379,12 +272,12 @@ if args.network == "manual":
     st_confirm = input("Ban co muon do toc do mang? [Y/n]")
     # print(st_confirm)  # for testing
     if st_confirm == "":
-        network_speed = net_speed()
+        network_speed = sc.net_speed()
         print("Toc do/Speed: " + str(network_speed))
     else:
         while True:
             if yes_no_verifier(st_confirm):
-                network_speed = net_speed()
+                network_speed = sc.net_speed()
                 print("Toc do/Speed: " + str(network_speed))
                 break
             elif not yes_no_verifier(st_confirm):
@@ -397,14 +290,14 @@ if args.network == "manual":
                 config_server = input("Nhap Y/N: ")
     print()
 elif args.network == "auto":
-    network_speed = net_speed()
+    network_speed = sc.net_speed()
     print("Toc do/Speed: " + str(network_speed))
 else:
     network_speed = args.network
 
 # config
 if args.slots == 0 and args.network == "manual":
-    max_player = calc_players(network_speed, chosen_mem)
+    max_player = sc.calc_players(network_speed, chosen_mem)
     print("Recommended player slots (max-player in server.properties): " + max_player)
     print("So slot duoc khuyen cao (max-player trong server.properties): " + max_player)
     print()
@@ -440,7 +333,7 @@ elif args.slots != 0 and args.network == "manual":
     with open("server/server.properties", "w", encoding="utf8") as file:
         file.write(fileout)
 elif args.slots == 0 and args.network != "manual":
-    max_player = calc_players(network_speed, chosen_mem)
+    max_player = sc.calc_players(network_speed, chosen_mem)
     copyfile("./templates/server.properties.templates", "./server/server.properties")
     with open("server/server.properties", "r", encoding="utf8") as file:
         fileout = file.read().replace("max-players=20", ("max-players=" + max_player))

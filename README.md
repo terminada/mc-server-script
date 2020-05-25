@@ -1,6 +1,6 @@
 <h1 align="center">Minecraft JE Server creation script</h1>
 
-> For Vietnamese version please check [README-vi.md](README-vi.md)
+> Phiên bản tiếng Việt tại [README-vi.md](README-vi.md)
 
 [![Build Status](https://travis-ci.com/HoangTheBoss/mc-server-script.svg?branch=master)](https://travis-ci.com/HoangTheBoss/mc-server-script)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
