@@ -1,5 +1,8 @@
+import os
 import pathlib
 from pySmartDL import SmartDL
+
+import server_fetcher as sf
 
 
 # download server jar
@@ -25,3 +28,9 @@ def download_fabric(url):
     print("fabric_installer.jar downloaded!")
     print("Tai fabric thanh cong!")
 
+
+# install fabric
+def install_fabric(chosen_ver):
+    fabric_link = sf.get_fabric_link()
+    download_fabric(fabric_link)
+    os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " + chosen_ver)

@@ -21,7 +21,6 @@ def check_java():
     return True
 
 
-
 # verify yes and no
 def yes_no_verifier(inp):
     if inp.lower().startswith("y"):
@@ -160,10 +159,7 @@ while True:
                 else:
                     while True:
                         if yes_no_verifier(overwrite):
-                            fabric_link = sf.get_fabric_link()
-                            sd.download_fabric(fabric_link)
-                            os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " +
-                                      chosen_ver)
+                            sd.install_fabric(chosen_ver)
                             break
                         elif not yes_no_verifier(overwrite):
                             print("Continuing...")
@@ -173,14 +169,10 @@ while True:
                         else:
                             overwrite = input("Nhap Y/N: ")
             elif args.overwrite == "y":
-                fabric_link = sf.get_fabric_link()
-                sd.download_fabric(fabric_link)
-                os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " + chosen_ver)
+                sd.install_fabric(chosen_ver)
                 break
         else:
-            fabric_link = sf.get_fabric_link()
-            sd.download_fabric(fabric_link)
-            os.system("java -jar server/fabric_installer.jar server -dir server -mcversion " + chosen_ver)
+            sd.install_fabric(chosen_ver)
             break
         print()
     elif not yes_no_verifier(lithium_yesno):
@@ -198,13 +190,11 @@ if args.eula == "manual":
                  "https://account.mojang.com/documents/minecraft_eula)")
     # print(eula)  # for testing
     if eula == "":
-        pathlib.Path("server").mkdir(parents=True, exist_ok=True)
-        open("server/eula.txt", 'w+').write("eula=true")
+        sc.eula_true()
     else:
         while True:
             if yes_no_verifier(eula):
-                pathlib.Path("server").mkdir(parents=True, exist_ok=True)
-                open("server/eula.txt", 'w+').write("eula=true")
+                sc.eula_true()
                 break
             elif not yes_no_verifier(eula):
                 print("You selected No. Exiting...")
@@ -217,8 +207,7 @@ if args.eula == "manual":
     print()
 
 elif args.eula == "y":
-    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
-    open("server/eula.txt", 'w+').write("eula=true")
+    sc.eula_true()
 elif args.eula == "n":
     print("You selected to not agree to MC EULA. Exiting...")
     exit()
@@ -301,11 +290,7 @@ if args.slots == 0 and args.network == "manual":
     print("Recommended player slots (max-player in server.properties): " + max_player)
     print("So slot duoc khuyen cao (max-player trong server.properties): " + max_player)
     print()
-    copyfile("./templates/server.properties.templates", "./server/server.properties")
-    with open("server/server.properties", "r", encoding="utf8") as file:
-        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
-    with open("server/server.properties", "w", encoding="utf8") as file:
-        file.write(fileout)
+    sc.set_properties(max_player=max_player)
 
     print("Edit server configuration? [Y/n]")
     config_server = input("Chinh sua cai dat server? [Y/n]")
@@ -326,16 +311,6 @@ if args.slots == 0 and args.network == "manual":
                 config_server = input("Nhap Y/N: ")
     print()
 elif args.slots != 0 and args.network == "manual":
-    max_player = args.slots
-    copyfile("./templates/server.properties.templates", "./server/server.properties")
-    with open("server/server.properties", "r", encoding="utf8") as file:
-        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
-    with open("server/server.properties", "w", encoding="utf8") as file:
-        file.write(fileout)
+    sc.set_properties(max_player=args.slots)
 elif args.slots == 0 and args.network != "manual":
-    max_player = sc.calc_players(network_speed, chosen_mem)
-    copyfile("./templates/server.properties.templates", "./server/server.properties")
-    with open("server/server.properties", "r", encoding="utf8") as file:
-        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
-    with open("server/server.properties", "w", encoding="utf8") as file:
-        file.write(fileout)
+    sc.set_properties(max_player=sc.calc_players(network_speed, chosen_mem))

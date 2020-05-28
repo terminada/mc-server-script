@@ -1,5 +1,6 @@
 import pathlib
 import platform
+from shutil import copyfile
 
 import psutil
 import speedtest
@@ -51,3 +52,18 @@ def generate_script(os, inputmem, lithium):
         open("server/start.sh", 'w+').writelines(["#!/bin/sh", generated_script])
         print("File chay server/Server starting script: ", pathlib.Path('server/start.sh').absolute())
     return generated_script
+
+
+# create eula file and set EULA to TRUE
+def eula_true():
+    pathlib.Path("server").mkdir(parents=True, exist_ok=True)
+    open("server/eula.txt", 'w+').write("eula=true")
+
+
+# create properties file and set values
+def set_properties(max_player):
+    copyfile("./templates/server.properties.templates", "./server/server.properties")
+    with open("server/server.properties", "r", encoding="utf8") as file:
+        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
+    with open("server/server.properties", "w", encoding="utf8") as file:
+        file.write(fileout)
