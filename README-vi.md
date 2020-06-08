@@ -15,23 +15,23 @@ Script [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_server) se
 
 ### Mục lục
 1. [Demo](#demo)
-2. [Hướng dẫn cài đặt và sử dụng](#installation-and-usage)
-3. [Phụ thuộc](#dependencies)
-4. [Đóng góp](#contribute)
+2. [Hướng dẫn cài đặt và sử dụng](#cài-đặt-và-sử-dụng)
+3. [Phụ thuộc](#phụ-thuộc)
+4. [Đóng góp](#đóng-góp)
 
 ## Demo
 ![screenshot-1](demos/screenshot-1.png "Screenshot 1")
 
-## Installation and usage
+## Cài đặt và sử dụng
 
 __Dành riêng cho Windows 10:__ 
 
 - Tải file `.zip` mới nhất tại [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
 - Chạy `windows-easy.bat` 
 
-Để cài thủ công, bạn cần __Python 3.7__, sau đó nhập dòng lệnh vào Terminal (cmd):
+Để cài thủ công, bạn cần [__Python 3.7__](https://www.python.org/downloads/release/python-377/) và [__GIT__](https://git-scm.com/downloads), sau đó nhập dòng lệnh vào Terminal (cmd):
 
-```
+```shell
 git clone https://github.com/HoangTheBoss/mc-server-script.git
 cd mc-server-script
 python3 -m pip install --upgrade pip
@@ -41,7 +41,7 @@ python3 makeserver.py
 
 __Chú ý__: Sử dụng `python3` trên Windows 8/10 có khả năng sẽ mở __Store__, trong trường hợp đó sử dụng `python` thay cho `python3`
 
-## Dependencies
+## Phụ thuộc
 Check [requirements.txt](https://github.com/HoangTheBoss/mc-server-script/blob/master/requirements.txt) để cập nhật thông tin mới nhất
 ```
 hurry.filesize == 0.9
@@ -52,7 +52,7 @@ speedtest_cli == 2.1.2
 pySmartDL == 1.3.3
 ```
 
-## Contribute
+## Đóng góp
 Bạn có thể đóng góp cho dự án bằng cách mở __Issues__ và __Pull Requests__.
 
 ## Bạn muốn chơi server nhưng không có máy để host?

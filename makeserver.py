@@ -1,9 +1,7 @@
 import argparse
-import os
 import pathlib
 import subprocess
 import time
-from shutil import copyfile
 
 import texteditor
 
@@ -182,6 +180,9 @@ while True:
         break
     else:
         lithium_yesno = input("Nhap Y/N: ")
+
+# lithium
+print("\nDownload Lithium at https://www.curseforge.com/minecraft/mc-mods/lithium and put it in the mods folder \n")
 
 # eula
 if args.eula == "manual":

@@ -29,9 +29,9 @@ For __Windows 10 only__:
 - Download the latest `.zip` file at [Releases](https://github.com/hoangtheboss/mc-server-script/releases)
 - Run `windows-easy.bat` to download Python (embedded version/if not installed), install dependencies and execute the script.
 
-Alternatively you will have to install __Python 3.7__ by yourself, then use the command line:
+Alternatively you will have to install [__Python 3.7__](https://www.python.org/downloads/release/python-377/) and [__GIT__](https://git-scm.com/downloads) by yourself, then use the command line:
 
-```
+```shell
 git clone https://github.com/HoangTheBoss/mc-server-script.git
 cd mc-server-script
 python3 -m pip install --upgrade pip

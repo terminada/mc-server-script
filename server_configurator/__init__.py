@@ -61,9 +61,10 @@ def eula_true():
 
 
 # create properties file and set values
-def set_properties(max_player):
+def set_properties(server_name, max_player):
     copyfile("./templates/server.properties.templates", "./server/server.properties")
     with open("server/server.properties", "r", encoding="utf8") as file:
         fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
+        fileout = file.read().replace("motd=WeeLux", ("motd=" + server_name))
     with open("server/server.properties", "w", encoding="utf8") as file:
         file.write(fileout)
