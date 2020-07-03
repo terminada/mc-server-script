@@ -8,6 +8,7 @@ import texteditor
 import server_configurator as sc
 import server_downloader as sd
 import server_fetcher as sf
+import setup_options as so
 
 
 # check java function
@@ -34,68 +35,59 @@ argparser.add_argument("-e", "--eula", default="manual", choices=["y", "n", "man
 argparser.add_argument("-l", "--lithium", default="manual", choices=["y", "n", "manual"],
                        help="Use Fabric + Lithium for better performance?")
 argparser.add_argument("-m", "--memory", default="manual", help="Amount of RAM to allocate to the server")
-argparser.add_argument("-n", "--network", default="manual",
+argparser.add_argument("--network", default="manual",
                        help="The minimum of your Download/Upload Speed in Mbit metrics. manual = prompt, auto = use "
                             "speedtest, else type numbers only")
 argparser.add_argument("-s", "--slots", default="0", type=int,
                        help="Number of slots to be available on your server, 0 = manual. Ignore if --network is passed")
+argparser.add_argument("-n", "--name", default="manual", help="Server name, eg. 'Weelux Network'")
 argparser.add_argument("-o", "--overwrite", default="manual", choices=["y", "n", "manual"],
                        help="Overwrite existing JAR file?")
 
 args = argparser.parse_args()
 
 # welcome
-print("Welcome to Mincecraft Java Server Creator!")
-print("Chao mung ban den voi trinh tao Server Minecraft Java! \n")
-print("Software by HoangTheBoss@IllumiStudios2020 \n")
+print("Welcome to Mincecraft Java Server Creator! \n")
+print("Software by HoangTheBoss, terminada@IllumiStudios2020 \n")
 
 # check java
 if not check_java():
-    print("Java Runtime not found. Download and install at: https://www.java.com/en/download/")
-    print("Ban chua cai Java. Tai va cai dat Java tai: https://www.java.com/en/download/")
+    print("Java Runtime not found. Download and install at: https://www.java.com/en/download/ \n")
+    exit()
 
 # load version list
-print("Loading version list...")
-print("Dang tai danh sach phien ban... \n")
+print("Loading version list... \n")
 
 versions_json = sf.getminecraftversions()
-print("Done!")
-print("Da tai xong danh sach phien ban! \n")
+latest_release = sf.latest_mc_release(versions_json)
+latest_snapshot = sf.latest_mc_snapshot(versions_json)
+
+print("Done! \n")
+
+server_name = so.server_name()
 
 if args.version == "manual":
     # pick version
-    print("Chon phien ban/Pick a version:")
-    print("1) Release moi nhat/Latest release: ", sf.latest_mc_release(versions_json))
-    print("2) Snapshot moi nhat/Latest snapshot: ", sf.latest_mc_snapshot(versions_json))
-    print("3) Khac/Other \n")
-
-    while True:
-        chosen_ver_num = input("Ghi so phien ban/Type a number: ")
-        # print(chosen_ver_num)  # for testing
-        if chosen_ver_num not in ('1', '2', '3'):
-            print("Hay chon lai trong 1,2,3/Pick again in 1,2,3.")
-        else:
-            break
-
-    if chosen_ver_num == "1":
+    chosen_ver_num = so.get_version_option(latest_release, latest_snapshot)
+    if chosen_ver_num == 1:
         chosen_ver = sf.latest_mc_release(versions_json)
-    elif chosen_ver_num == "2":
+    elif chosen_ver_num == 2:
         chosen_ver = sf.latest_mc_snapshot(versions_json)
-    elif chosen_ver_num == "3":
-        chosen_ver = input("Nhap phien ban cu the (X.X.X or snapshot name): ")
+    elif chosen_ver_num == 3:
+        chosen_ver = so.get_custom_version()
         while not sf.verify_version(versions_json, chosen_ver):
-            chosen_ver = input("Phien ban khong dung, xin hay nhap lai/Try again: ")
+            chosen_ver = so.get_custom_version()
 
     print()
 
 elif args.version == "release":
-    chosen_ver = sf.latest_mc_release(versions_json)
+    chosen_ver = latest_release
 elif args.version == "snapshot":
-    chosen_ver = sf.latest_mc_snapshot(versions_json)
+    chosen_ver = latest_snapshot
 elif sf.verify_version(versions_json, args.version):
     chosen_ver = args.version
 else:
-    print("Invalid --version argument value passed, do -h or --help for more information.")
+    print("ERROR: Invalid --version argument value passed, do -h or --help for more information.")
     print("Exiting...")
     exit()
 
@@ -107,137 +99,84 @@ for i in versions_json["versions"]:
 # download
 if pathlib.Path('server/server.jar').is_file():
     if args.overwrite == "manual":
-        print("server.jar exists, overwrite? [y/N]")
-        overwrite = input("File server.jar da ton tai, ban co muon ghi de khong? [y/N]")
-        if overwrite == "":
-            print("Continuing...")
-            print("Dang tiep tuc setup...")
-            time.sleep(0.5)
+        overwrite = so.overwrite_confirm("server.jar")
+        if overwrite:
+            sd.download_server(downloadlink)
         else:
-            while True:
-                if yes_no_verifier(overwrite):
-                    sd.download_server(downloadlink)
-                    break
-                elif not yes_no_verifier(overwrite):
-                    print("Continuing...")
-                    print("Dang tiep tuc setup...")
-                    time.sleep(0.5)
-                    break
-                else:
-                    overwrite = input("Nhap Y/N: ")
+            print("Continuing...")
     elif args.overwrite == "y":
         sd.download_server(downloadlink)
+    else:
+        print("Continuing...")
 else:
     sd.download_server(downloadlink)
 print()
 
 # use fabric + lithium
 if args.lithium == "manual":
-    print("Use fabric and lithium for better server performance? [Y/n]")
-    lithium_yesno = input("Su dung fabric va lithium de giam lag server? [Y/n]")
-    print()
-    if lithium_yesno == "":
-        lithium_yesno = "y"
+    lithium_yesno = so.lithium_confirm()
 elif args.lithium == "y":
-    lithium_yesno = "y"
+    lithium_yesno = True
 else:
-    lithium_yesno = "n"
+    lithium_yesno = False
 
-while True:
-    if yes_no_verifier(lithium_yesno):
-        if pathlib.Path('server/fabric-server-launch.jar').is_file():
-            if args.overwrite == "manual":
-                print("fabric-server-launch.jar exists, overwrite? [y/N]")
-                overwrite = input("File fabric-server-launch.jar da ton tai, ban co muon ghi de khong? [y/N]")
-                if overwrite == "":
-                    print("Continuing...")
-                    print("Dang tiep tuc setup...")
-                    time.sleep(0.5)
-                    break
-                else:
-                    while True:
-                        if yes_no_verifier(overwrite):
-                            sd.install_fabric(chosen_ver)
-                            break
-                        elif not yes_no_verifier(overwrite):
-                            print("Continuing...")
-                            print("Dang tiep tuc setup...")
-                            time.sleep(0.5)
-                            break
-                        else:
-                            overwrite = input("Nhap Y/N: ")
-            elif args.overwrite == "y":
+if lithium_yesno:
+    if pathlib.Path('server/fabric-server-launch.jar').is_file():
+        if args.overwrite == "manual":
+            overwrite = so.overwrite_confirm("fabric-server-launch.jar")
+            if overwrite:
                 sd.install_fabric(chosen_ver)
-                break
-        else:
+            else:
+                print("\nContinuing...")
+        elif args.overwrite == "y":
             sd.install_fabric(chosen_ver)
-            break
-        print()
-    elif not yes_no_verifier(lithium_yesno):
-        print("Continuing...")
-        print("Dang tiep tuc setup...")
-        time.sleep(0.5)
-        break
     else:
-        lithium_yesno = input("Nhap Y/N: ")
+        sd.install_fabric(chosen_ver)
+if not lithium_yesno:
+    print("Continuing...")
 
 # lithium
 print("\nDownload Lithium at https://www.curseforge.com/minecraft/mc-mods/lithium and put it in the mods folder \n")
 
 # eula
 if args.eula == "manual":
-    print("Agree to Minecraft EULA? [Y/n] (https://account.mojang.com/documents/minecraft_eula)")
-    eula = input("Dong y voi thoa thuan nguoi dung cua Minecraft? [Y/n] ("
-                 "https://account.mojang.com/documents/minecraft_eula)")
+    eula = so.eula()
     # print(eula)  # for testing
-    if eula == "":
+    if eula:
         sc.eula_true()
-    else:
-        while True:
-            if yes_no_verifier(eula):
-                sc.eula_true()
-                break
-            elif not yes_no_verifier(eula):
-                print("You selected No. Exiting...")
-                print("Ban da chon khong dong y. Dang thoat...")
-                time.sleep(1)
-                exit()
-            else:
-                eula = input("Nhap Y/N: ")
-
+    elif not eula:
+        print("You selected No. Exiting...")
+        exit()
     print()
-
 elif args.eula == "y":
     sc.eula_true()
 elif args.eula == "n":
     print("You selected to not agree to MC EULA. Exiting...")
     exit()
 
+# generate config file
+sc.generate_config()
+
 # checking system and generate scripts
 if args.memory == "manual":
-    print("Close all other application in order to get the most accurate system info!")
-    print("Vui long dong moi ung dung de lay thong tin he thong chinh xac nhat!")
+    print("\nClose all other application in order to get the most accurate system info!")
     print(input("Nhan ENTER de tiep tuc..."))
     print()
     system_info = sc.system_check()
-    print("He dieu hanh/OS: ", system_info[0])
-    print("RAM con trong/Memory Available: ", system_info[1])
+    print("OS: ", system_info[0])
+    print("Memory Available: ", system_info[1])
     print()
     mem = str(system_info[1])
-    print("How much RAM do you want to allocate to the server? [" + mem + "]")
-    chosen_mem = input("Ban muon cho server bao nhieu RAM? [" + mem + "]:")
+    chosen_mem = so.memory_input(mem)
     # print(chosen_mem)  # for testing
     print()
-    if chosen_mem == "":
-        chosen_mem = system_info[1]
-    else:
-        while (not chosen_mem.endswith("M")) and (not chosen_mem.endswith("G")):
-            if chosen_mem.endswith("B"):
-                chosen_mem = chosen_mem[:-1]
-                break
-            else:
-                print("Enter a value ends with 'M' or 'G': ")
-                chosen_mem = input("Hay nhap so ket thuc boi 'M' hoac 'G': ")
+    while (not chosen_mem.endswith("M")) and (not chosen_mem.endswith("G")):
+        if chosen_mem.endswith("B"):
+            chosen_mem = chosen_mem[:-1]
+            break
+        else:
+            print("Enter a value ends with 'M' or 'G': ")
+            chosen_mem = so.memory_input(mem)
 elif args.memory == "auto":
     system_info = sc.system_check()
     chosen_mem = system_info[1]
@@ -252,36 +191,23 @@ else:
     system_info = sc.system_check()
     chosen_mem = args.memory
 
-script = sc.generate_script(system_info[1], chosen_mem, yes_no_verifier(lithium_yesno))
-print("Command for starting the server:")
-print("Command chay server: " + script)
+script = sc.generate_script(system_info[1], chosen_mem, lithium_yesno)
+print("Command for starting the server: " + script)
 print()
 
 if args.network == "manual":
-    print("Do you want to run network speedtest? [Y/n]")
-    st_confirm = input("Ban co muon do toc do mang? [Y/n]")
+    st_confirm = so.speedtest_confirm()
     # print(st_confirm)  # for testing
-    if st_confirm == "":
+    if st_confirm:
         network_speed = sc.net_speed()
-        print("Toc do/Speed: " + str(network_speed))
+        print("Speed: " + str(network_speed))
     else:
-        while True:
-            if yes_no_verifier(st_confirm):
-                network_speed = sc.net_speed()
-                print("Toc do/Speed: " + str(network_speed))
-                break
-            elif not yes_no_verifier(st_confirm):
-                manual_down = input("Nhap toc do tai xuong/Download speed (Mbps): ")
-                manual_up = input("Nhap toc do tai len/Upload speed (Mbps): ")
-                network_speed = min(manual_down, manual_up)
-                time.sleep(0.5)
-                break
-            else:
-                config_server = input("Nhap Y/N: ")
+        network_speed = so.netspeed_manual()
+        time.sleep(0.5)
     print()
 elif args.network == "auto":
     network_speed = sc.net_speed()
-    print("Toc do/Speed: " + str(network_speed))
+    print("Speed: " + str(network_speed))
 else:
     network_speed = args.network
 
@@ -289,27 +215,16 @@ else:
 if args.slots == 0 and args.network == "manual":
     max_player = sc.calc_players(network_speed, chosen_mem)
     print("Recommended player slots (max-player in server.properties): " + max_player)
-    print("So slot duoc khuyen cao (max-player trong server.properties): " + max_player)
     print()
-    sc.set_properties(max_player=max_player)
+    sc.set_properties(max_player=max_player, server_name=server_name)
 
-    print("Edit server configuration? [Y/n]")
-    config_server = input("Chinh sua cai dat server? [Y/n]")
+    config_server = so.config_confirm()
     # print(configserver)  # for testing
-    if config_server == "":
-        texteditor.open(filename="server/server.properties", encoding="utf_8")
+    if config_server:
+        texteditor.open(filename="server.properties", encoding="utf_8")
     else:
-        while True:
-            if yes_no_verifier(config_server):
-                texteditor.open(filename="server/server.properties", encoding="utf_8")
-                break
-            elif not yes_no_verifier(config_server):
-                print("Continuing...")
-                print("Dang tiep tuc setup...")
-                time.sleep(0.5)
-                break
-            else:
-                config_server = input("Nhap Y/N: ")
+        print("Continuing...")
+        time.sleep(0.5)
     print()
 elif args.slots != 0 and args.network == "manual":
     sc.set_properties(max_player=args.slots)

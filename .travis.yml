@@ -4,4 +4,4 @@ python:
 install:
   - pip install -r requirements.txt
 script:
-  - python makeserver.py -v release -e y -l y -m 4G -n 50 -s 0 -o y
+  - python makeserver.py -v release -e y -l y -m 4G --network 50 -s 0 -o y

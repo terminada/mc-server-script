@@ -2,10 +2,10 @@
 
 > For English version please check [README.md](README.md)
 
-[![Build Status](https://travis-ci.com/HoangTheBoss/mc-server-script.svg?branch=master)](https://travis-ci.com/HoangTheBoss/mc-server-script)
+[![Build Status](https://travis-ci.com/terminada/mc-server-script.svg?branch=master)](https://travis-ci.com/terminada/mc-server-script)
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/HoangTheBoss/mc-server-script/?ref=repository-badge)
+[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/terminada/mc-server-script/?ref=repository-badge)
 
 ![IllumiStudios](https://img.shields.io/badge/Powered%20by-IllumiStudios-black)
 [![ApexHosting](https://img.shields.io/badge/Host%20your%20server%20on-Apex%20Hosting-critical)](https://billing.apexminecrafthosting.com/aff.php?aff=2786)
@@ -16,7 +16,7 @@ Script [setup](https://minecraft.gamepedia.com/Tutorials/Setting_up_a_server) se
 ### Mục lục
 1. [Demo](#demo)
 2. [Hướng dẫn cài đặt và sử dụng](#cài-đặt-và-sử-dụng)
-3. [Phụ thuộc](#phụ-thuộc)
+3. [Phần phụ thuộc](#phần-phụ-thuộc)
 4. [Đóng góp](#đóng-góp)
 
 ## Demo
@@ -41,7 +41,7 @@ python3 makeserver.py
 
 __Chú ý__: Sử dụng `python3` trên Windows 8/10 có khả năng sẽ mở __Store__, trong trường hợp đó sử dụng `python` thay cho `python3`
 
-## Phụ thuộc
+## Phần phụ thuộc
 Check [requirements.txt](https://github.com/HoangTheBoss/mc-server-script/blob/master/requirements.txt) để cập nhật thông tin mới nhất
 ```
 hurry.filesize == 0.9

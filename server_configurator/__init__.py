@@ -1,3 +1,4 @@
+import os
 import pathlib
 import platform
 from shutil import copyfile
@@ -62,9 +63,13 @@ def eula_true():
 
 # create properties file and set values
 def set_properties(server_name, max_player):
-    copyfile("./templates/server.properties.templates", "./server/server.properties")
-    with open("server/server.properties", "r", encoding="utf8") as file:
-        fileout = file.read().replace("max-players=20", ("max-players=" + max_player))
-        fileout = file.read().replace("motd=WeeLux", ("motd=" + server_name))
-    with open("server/server.properties", "w", encoding="utf8") as file:
-        file.write(fileout)
+    with open("server.properties", "r+", encoding="utf8") as config_file:
+        fileout = config_file.read().replace("max-players=20", ("max-players=" + max_player))
+        fileout = fileout.replace("motd=A Minecraft Server", ("motd=" + server_name))
+        config_file.write(fileout)
+        config_file.truncate()
+
+
+def generate_config():
+    os.chdir("server")
+    os.system("java -jar server.jar --initSettings")
