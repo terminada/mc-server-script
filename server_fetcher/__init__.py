@@ -24,6 +24,13 @@ def verify_version(data, version):
             return True
     return False
 
+# list version
+def list_version(data):
+    versions = []
+    for j in data["versions"]:
+        versions.append(j["id"])
+    return versions
+
 
 # GET download link for selected version
 def get_download_link(url):

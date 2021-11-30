@@ -1,11 +1,13 @@
 from __future__ import print_function, unicode_literals
-from PyInquirer import style_from_dict, Token, prompt, print_json, Separator
+from InquirerPy import prompt
+from InquirerPy.exceptions import InvalidArgument
+from InquirerPy.validator import PathValidator
 
 
 def get_version_option(release, snapshot):
     questions = [
         {
-            "type": "rawlist",
+            "type": "list",
             "name": "version_option",
             "message": "Pick a version:",
             "choices": ["Latest release: " + release, "Latest snapshot: " + snapshot, "Other version"],
@@ -13,7 +15,7 @@ def get_version_option(release, snapshot):
         }
 
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     if "release" in answer["version_option"]:
         return 1
     if "snapshot" in answer["version_option"]:
@@ -21,15 +23,21 @@ def get_version_option(release, snapshot):
     return 3
 
 
-def get_custom_version():
+def get_custom_version(json):
+    versions = []
+    for j in json["versions"]:
+        versions.append(j["id"])
+
     questions = [
         {
-            "type": "input",
+            "type": "fuzzy",
             "name": "custom_version",
-            "message": "Type custom version:"
+            "message": "Type custom version:",
+            "choices": versions,
+            "max_height": "70%"
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["custom_version"]
 
 
@@ -42,21 +50,21 @@ def overwrite_confirm(filename):
             "default": False
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["overwrite_confirm"]
 
 
-def lithium_confirm():
+def fabric_confirm():
     questions = [
         {
             "type": "confirm",
-            "name": "lithium_confirm",
-            "message": "Use fabric and lithium for better server performance?",
+            "name": "fabric_confirm",
+            "message": "Use fabric for better server performance?",
             "default": True
         }
     ]
-    answer = prompt(questions)
-    return answer["lithium_confirm"]
+    answer = prompt(questions, vi_mode=True)
+    return answer["fabric_confirm"]
 
 
 def server_name():
@@ -67,7 +75,7 @@ def server_name():
             "message": "Your server name:"
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["server_name"]
 
 
@@ -80,7 +88,7 @@ def eula():
             "default": True
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["eula"]
 
 
@@ -93,7 +101,7 @@ def memory_input(default):
             "default": default
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["memory_input"]
 
 
@@ -106,7 +114,7 @@ def speedtest_confirm():
             "default": True
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["speedtest_confirm"]
 
 
@@ -125,7 +133,7 @@ def netspeed_manual():
             "validate": lambda text: len(text) > 0 or "Please input"
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return min(answer["download_speed"], answer["upload_speed"])
 
 
@@ -138,5 +146,5 @@ def config_confirm():
             "default": True
         }
     ]
-    answer = prompt(questions)
+    answer = prompt(questions, vi_mode=True)
     return answer["config_confirm"]

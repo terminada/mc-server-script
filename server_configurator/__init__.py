@@ -6,8 +6,14 @@ from shutil import copyfile
 import psutil
 import speedtest
 
-from hurry.filesize import size
-
+suffixes = ['', 'K', 'M', 'G']
+def size(nbytes):
+    i = 0
+    while nbytes >= 1024 and i < len(suffixes)-1:
+        nbytes //= 1024.
+        i += 1
+    f = ('%.2f' % nbytes).rstrip('0').rstrip('.')
+    return '%s%s' % (f, suffixes[i])
 
 # network speedtest
 def net_speed():
