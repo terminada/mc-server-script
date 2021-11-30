@@ -52,7 +52,7 @@ print("Software by HoangTheBoss. \n")
 # check java
 if not check_java():
     print("Java Runtime not found. Download and install at: https://www.java.com/en/download/ \n")
-    exit()
+    sys.exit()
 
 # load version list
 print("Loading version list... \n")
@@ -95,8 +95,8 @@ print()
 #     chosen_ver = args.version
 # else:
 #     print("ERROR: Invalid --version argument value passed, do -h or --help for more information.")
-#     print("Exiting...")
-#     exit()
+#     print("sys.exiting...")
+#     sys.exit()
 
 # get download link
 for i in versions_json["versions"]:
@@ -154,14 +154,14 @@ eula = so.eula()
 if eula:
     sc.eula_true()
 elif not eula:
-    print("You selected No. Exiting...")
-    exit()
+    print("You selected No. sys.exiting...")
+    sys.exit()
 print()
 # elif args.eula == "y":
 #     sc.eula_true()
 # elif args.eula == "n":
-#     print("You selected to not agree to MC EULA. Exiting...")
-#     exit()
+#     print("You selected to not agree to MC EULA. sys.exiting...")
+#     sys.exit()
 
 # generate config file
 sc.generate_config()
@@ -195,7 +195,7 @@ while (not chosen_mem.endswith("M")) and (not chosen_mem.endswith("G")):
 #         chosen_mem = args.memory[:-1]
 #     else:
 #         print("Invalid --memory argument value passed, do -h or --help for more information.")
-#         print("Exiting...")
+#         print("sys.exiting...")
 # else:
 #     system_info = sc.system_check()
 #     chosen_mem = args.memory
