@@ -1,7 +1,7 @@
 InquirerPy
 psutil==5.8.0
 pySmartDL==1.3.4
-requests==2.26.0
+requests==2.31.0
 speedtest-cli
 texteditor==1.3
 PyInstaller
